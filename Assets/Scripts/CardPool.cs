@@ -29,7 +29,7 @@ public class CardPool : MonoBehaviour
         return _inactiveCards.Count == 0;
     }
 
-    public Card SpawnCard(CardData cardsData)
+    public void SpawnCard(CardData cardsData)
     {
         var card = _inactiveCards.Pop();
 
@@ -46,8 +46,6 @@ public class CardPool : MonoBehaviour
         }
 
         _activeCards.Add(card);
-
-        return card;
     }
 
     public void DespawnCards(Card card)

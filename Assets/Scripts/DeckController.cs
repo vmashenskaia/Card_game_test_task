@@ -10,11 +10,11 @@ public class DeckController : MonoBehaviour
 {
     private const int maxHandSize = 5;
     [SerializeField]
-    private CardPool _cardPool; // Ссылка на пул карт
+    private CardPool _cardPool;
     [SerializeField]
     private List<CardData> _cardDatabase;
     [SerializeField]
-    private CardsData _cardsData; // Список всех доступных карт (ScriptableObject)
+    private CardsData _cardsData;
     [SerializeField]
     private Card _playerPlayedCard;
     [SerializeField]
@@ -34,21 +34,15 @@ public class DeckController : MonoBehaviour
     [SerializeField]
     private Button _getCardButton;
 
-    private readonly List<CardData> _drawPile = new(); // Колода добора
-    private readonly List<CardData> _discardPile = new(); // Колода сброса
-    private readonly List<CardData> _playerHand = new(); // Рука игрока
+    private readonly List<CardData> _drawPile = new();
+    private readonly List<CardData> _discardPile = new();
+    private readonly List<CardData> _playerHand = new();
 
     private readonly List<CardData> _enemyFirstHand = new();
     private readonly List<CardData> _enemySecondHand = new();
 
     private Card _selectedCard;
 
-    private void OnDestroy()
-    {
-        _moveButton.onClick.RemoveAllListeners();
-        _finishButton.onClick.RemoveAllListeners();
-        _getCardButton.onClick.RemoveAllListeners();
-    }
 
     private void Awake()
     {
@@ -59,24 +53,16 @@ public class DeckController : MonoBehaviour
         _getCardButton.onClick.AddListener(OnGetCardButtonClickedHandler);
     }
 
-    private void OnGetCardButtonClickedHandler()
-    {
-        if (_playerHand.Count > 5)
-            return;
-        else
-        {
-            var card = _drawPile.First();
-            _playerHand.Add(card);
-            _drawPile.Remove(card);
-            _cardPool.SpawnCard(card);
-        }
-
-    }
-
     private void Start()
     {
         SetPlayerHand();
         SetEnemysHand();
+    }
+    private void OnDestroy()
+    {
+        _moveButton.onClick.RemoveAllListeners();
+        _finishButton.onClick.RemoveAllListeners();
+        _getCardButton.onClick.RemoveAllListeners();
     }
 
     public void DiscardCard(Card card)
@@ -84,6 +70,17 @@ public class DeckController : MonoBehaviour
         _playerHand.Remove(card.CardData);
         _discardPile.Add(card.CardData);
         _cardPool.DespawnCards(card);
+    }
+
+    private void OnGetCardButtonClickedHandler()
+    {
+        if (_playerHand.Count > 5)
+            return;
+
+        var card = _drawPile.First();
+        _playerHand.Add(card);
+        _drawPile.Remove(card);
+        _cardPool.SpawnCard(card);
     }
 
     private void OnFinishButtonClickedHandler()
@@ -96,7 +93,7 @@ public class DeckController : MonoBehaviour
         }
 
         ;
-        
+
         _player.PlayCard(_playerPlayedCard.CardData, ChosseEnemy());
         _enemyOne.PlayCard(_enemyOnePlayedCard.CardData, _player);
         _enemyTwo.PlayCard(_enemyTwoPlayedCard.CardData, _player);
@@ -105,22 +102,10 @@ public class DeckController : MonoBehaviour
         _enemyTwo.UpdateBars();
 
         Debug.Log($"your stats - Health = {_player.Health}, Energy  = {_player.Energy}, Defense = {_player.Defense}");
-        Debug.Log($"enemy stats: enemyOne Health = {_enemyOne.Health}, Energy  = {_enemyOne.Energy}, Defense = {_enemyOne.Defense}");
+        Debug.Log(
+            $"enemy stats: enemyOne Health = {_enemyOne.Health}, Energy  = {_enemyOne.Energy}, Defense = {_enemyOne.Defense}");
+
         Debug.Log($"enemyTwo Health = {_enemyTwo.Health}, Energy  = {_enemyTwo.Energy}, Defense = {_enemyTwo.Defense}");
-    }
-
-    private Enemy ChosseEnemy()
-    {
-        if (_enemyOne.Health > 0)
-            return _enemyOne;
-
-        if (_enemyTwo.Health > 0)
-            return _enemyTwo;
-        else
-        {
-            Debug.LogError("You win!");
-        }
-        return null;
     }
 
     private void OnMoveButtonClickedHandler()
@@ -161,6 +146,18 @@ public class DeckController : MonoBehaviour
         }
     }
 
+    private Enemy ChosseEnemy()
+    {
+        if (_enemyOne.Health > 0)
+            return _enemyOne;
+
+        if (_enemyTwo.Health > 0)
+            return _enemyTwo;
+
+        Debug.LogError("You win!");
+        return null;
+    }
+
     private void ClearPlayZone()
     {
         _playerPlayedCard.gameObject.SetActive(false);
@@ -168,7 +165,6 @@ public class DeckController : MonoBehaviour
         _enemyTwoPlayedCard.gameObject.SetActive(false);
     }
 
-    // Инициализация начальной колоды
     private void InitializeDeck()
     {
         foreach (var card in _cardsData._cards)

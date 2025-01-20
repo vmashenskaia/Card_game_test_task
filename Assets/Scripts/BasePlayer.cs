@@ -11,27 +11,19 @@ namespace DefaultNamespace
         [SerializeField]
         private Image _energyBar;
 
-        private  int _maxHealth = 100;
-        private  int _maxEnergy = 100;
-        private int _health = 100;
-        private int _energy = 100;
-        private int _defense = 0;
-        
-        public int Health
-        {
-            get => _health;
-            private set => _health = value;
-        }
-        public int Energy
-        {
-            get => _energy;
-            private set => _energy = value;
-        }
+        public int Health { get; private set; } = 100;
+
+        public int Energy { get; private set; } = 100;
+
         public int Defense
         {
             get => _defense;
-            private set => _health = value;
+            private set => Health = value;
         }
+
+        private readonly int _maxHealth = 100;
+        private readonly int _maxEnergy = 100;
+        private int _defense;
 
         private void Awake()
         {
@@ -40,10 +32,10 @@ namespace DefaultNamespace
 
         public void UpdateBars()
         {
-            float normalizedHealth = Mathf.Clamp01((float) _health / _maxHealth);
+            float normalizedHealth = Mathf.Clamp01((float) Health / _maxHealth);
             _healthBar.fillAmount = normalizedHealth;
-            
-            float normalizedEnergy = Mathf.Clamp01((float) _energy / _maxEnergy);
+
+            float normalizedEnergy = Mathf.Clamp01((float) Energy / _maxEnergy);
             _energyBar.fillAmount = normalizedEnergy;
         }
 
@@ -51,10 +43,11 @@ namespace DefaultNamespace
         {
             if (player == null)
                 return;
-            var energyDataCount = GetStatCount(cardsData, StatType.Energy);
-            if (_energy < energyDataCount) return;
 
-            _energy -= energyDataCount;
+            var energyDataCount = GetStatCount(cardsData, StatType.Energy);
+            if (Energy < energyDataCount) return;
+
+            Energy -= energyDataCount;
 
             var attackDataCount = GetStatCount(cardsData, StatType.Attack);
             if (attackDataCount > 0)
@@ -73,7 +66,7 @@ namespace DefaultNamespace
         {
             var finalDamage = damage - _defense;
             if (finalDamage >= 0)
-                _health -= finalDamage;
+                Health -= finalDamage;
         }
 
         private int GetStatCount(CardData cardsData, StatType statType)
@@ -88,7 +81,7 @@ namespace DefaultNamespace
 
         private void Heal(int amount)
         {
-            _health = Mathf.Min(_health + amount, _maxHealth);
+            Health = Mathf.Min(Health + amount, _maxHealth);
         }
     }
 }
